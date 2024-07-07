@@ -5,8 +5,9 @@ import (
     "net/http"
     "hostedgo/database"
     "github.com/gorilla/mux"
-	
-	"github.com/niranjandahal/hostedgo/models"
+
+	"github.com/niranjandahal/hostinggo/models"
+
 )
 	
 func CreateItem(w http.ResponseWriter, r *http.Request) {

@@ -3,8 +3,8 @@ package database
 import (
     "gorm.io/driver/sqlite"
     "gorm.io/gorm"
+	"github.com/niranjandahal/hostinggo/models"
 
-	"github.com/niranjandahal/hostedgo/models"
 
 )
 
