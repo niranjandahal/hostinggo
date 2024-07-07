@@ -1,29 +1,28 @@
 package main
 
 import (
-	"log"
-	"os"
+    "log"
+    "net/http"
+    "hostedgo/database"
+    "hostedgo/handlers"
 
-	"github.com/gofiber/fiber/v2"
+    "github.com/gorilla/mux"
 )
 
-func main (){
-	app := fiber.New()
+func main() {
+    var err error
+    database.DB, err = database.InitDB()
+    if err != nil {
+        log.Fatal(err)
+    }
 
-	app.Get("/" , func(c *fiber.Ctx) error {
-		return c.SendString("first sample page")
+    router := mux.NewRouter()
 
-	})
+    router.HandleFunc("/items", handlers.CreateItem).Methods("POST")
+    router.HandleFunc("/items", handlers.GetItems).Methods("GET")
+    router.HandleFunc("/items/{id}", handlers.GetItem).Methods("GET")
+    router.HandleFunc("/items/{id}", handlers.UpdateItem).Methods("PUT")
+    router.HandleFunc("/items/{id}", handlers.DeleteItem).Methods("DELETE")
 
-	app.Get("/env", func(c *fiber.Ctx) error {
-		return c.SendString("TEst ENV" + os.Getenv("Test_env"))
-	})
-
-	port := os.Getenv("PORT")
-
-	if port == ""{
-		port = "3000"
-	}
-
-	log.Fatal(app.Listen("0.0.0.0:"+ port))
+    log.Fatal(http.ListenAndServe(":8000", router))
 }
