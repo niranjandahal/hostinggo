@@ -1,0 +1,30 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Download Resized Image</title>
+</head>
+
+<body>
+    <h2>Resized Image</h2>
+    <img src="{{ .FilePath }}" alt="Resized Image"><br>
+    <a href="/download/{{ index . " FileName" }}" download><button>Download</button></a>
+</body>
+
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Image</title>
+</head>
+
+<body>
+    <h1>Your Resized Image</h1>
+    <a href="{{.FilePath}}" download>Download</a>
+</body>
+
+</html>

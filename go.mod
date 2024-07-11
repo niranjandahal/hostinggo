@@ -1,4 +1,4 @@
-module imageresizer
+module allprojects
 
 go 1.22.3
 
