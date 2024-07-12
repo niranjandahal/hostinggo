@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Chat</title>
+</head>
+
+<body>
+    <div id="messages">
+        <!-- Messages should be displayed here -->
+    </div>
+    <form id="messageForm" action="/globalchat/send" method="post">
+        <input type="text" id="messageInput" name="message" placeholder="Enter your message" required>
+        <button type="submit">Send</button>
+    </form>
+
+    <!-- Include jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Function to fetch and display messages
+            function fetchMessages() {
+                $.getJSON("/globalchat/getmessages", function (data) {
+                    // Clear previous messages
+                    $("#messages").empty();
+
+                    // Append new messages
+                    $.each(data.messages, function (index, message) {
+                        $("#messages").append(`<div>${message.Timestamp}: ${message.Content}</div>`);
+                    });
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log(`Failed to fetch messages: ${textStatus}, ${errorThrown}`);
+                });
+            }
+
+            // Fetch messages initially
+            fetchMessages();
+
+            // Submit message form
+            $("#messageForm").submit(function (event) {
+                event.preventDefault();
+                var formData = $(this).serialize();
+                $.post("/globalchat/send", formData, function () {
+                    // Clear input after sending message
+                    $("#messageInput").val("");
+                    // Fetch and display updated messages
+                    fetchMessages();
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.log(`Failed to send message: ${textStatus}, ${errorThrown}`);
+                });
+            });
+        });
+
+    </script>
+</body>
+
+</html>
