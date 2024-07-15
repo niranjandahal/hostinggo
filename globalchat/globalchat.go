@@ -3,27 +3,30 @@ package globalchat
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 
-	_ "github.com/go-sql-driver/mysql" // MySQL driver
+	_ "github.com/microsoft/go-mssqldb"
 )
 
 var db *sql.DB
 
 func InitDB(dataSourceName string) {
-	var err error
-	db, err = sql.Open("mysql", dataSourceName)
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
-	}
+    var err error
+    db, err = sql.Open("sqlserver", dataSourceName)
+    if err != nil {
+        log.Fatalf("Failed to connect to database: %v", err)
+    }
+
+    fmt.Print("Connected to database\n")
 }
 
 type Message struct {
-	ID        int
-	Content   string
-	Timestamp string
+    ID        int
+    Content   string
+    Timestamp string
 }
 
 func fetchMessages() ([]Message, error) {
@@ -54,6 +57,7 @@ func fetchMessages() ([]Message, error) {
 
     return messages, nil
 }
+
 func GlobalChatHandler(w http.ResponseWriter, r *http.Request) {
     messages, err := fetchMessages()
     if err != nil {
@@ -93,48 +97,98 @@ func GlobalChatGetMessagesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
-
-
 func GlobalChatSendHandler(w http.ResponseWriter, r *http.Request) {
-	
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+    fmt.Println("GlobalChatSendHandler function called")
 
-	err := r.ParseForm()
-	if err != nil {
-		http.Error(w, "Failed to parse form", http.StatusInternalServerError)
-		return
-	}
+    if r.Method != http.MethodPost {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
 
-	message := r.Form.Get("message")
-	if message == "" {
-		http.Error(w, "Message cannot be empty", http.StatusBadRequest)
-		return
-	}
+    err := r.ParseForm()
+    if err != nil {
+        http.Error(w, "Failed to parse form", http.StatusInternalServerError)
+        return
+    }
 
-	// Insert message into database
-	_, err = db.Exec("INSERT INTO messages (content) VALUES (?)", message)
-	if err != nil {
-		http.Error(w, "Failed to insert message into database", http.StatusInternalServerError)
-		return
-	}
+    message := r.Form.Get("message")
+    if message == "" {
+        http.Error(w, "Message cannot be empty", http.StatusBadRequest)
+        return
+    }
 
-	// Redirect back to chat page
-	http.Redirect(w, r, "/globalchat", http.StatusSeeOther)
+    // Log the message before inserting
+    fmt.Printf("Inserting message: %s\n", message)
+
+    // Insert message into database
+    result, err := db.Exec("INSERT INTO messages (content) VALUES (@p1)", message)
+    // result, err := db.Exec("INSERT INTO messages (content) VALUES (?)", message)
+    if err != nil {
+        log.Printf("Failed to insert message into database: %v", err)
+        http.Error(w, "Failed to insert message into database", http.StatusInternalServerError)
+        return
+    }
+
+    // Log the number of rows affected
+    rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        log.Printf("Failed to get affected rows: %v", err)
+        http.Error(w, "Failed to get affected rows", http.StatusInternalServerError)
+        return
+    }
+
+    fmt.Printf("Message sent: %s, Rows affected: %d\n", message, rowsAffected)
+
+    // Redirect back to chat page
+    http.Redirect(w, r, "/globalchat", http.StatusSeeOther)
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	t, err := template.ParseFiles(tmpl)
-	if err != nil {
-		http.Error(w, "Failed to load template", http.StatusInternalServerError)
-		return
-	}
 
-	err = t.Execute(w, data)
-	if err != nil {
-		http.Error(w, "Failed to render template", http.StatusInternalServerError)
-		return
-	}
+// func GlobalChatSendHandler(w http.ResponseWriter, r *http.Request) {
+
+
+//     print("GlobalChatSendHandler function called " );
+
+//     if r.Method != http.MethodPost {
+//         http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+//         return
+//     }
+
+//     err := r.ParseForm()
+//     if err != nil {
+//         http.Error(w, "Failed to parse form", http.StatusInternalServerError)
+//         return
+//     }
+
+//     message := r.Form.Get("message")
+//     if message == "" {
+//         http.Error(w, "Message cannot be empty", http.StatusBadRequest)
+//         return
+//     }
+
+//     // Insert message into database
+//     _, err = db.Exec("INSERT INTO messages (content) VALUES (?)", message)
+//     if err != nil {
+//         http.Error(w, "Failed to insert message into database", http.StatusInternalServerError)
+//         return
+//     }
+
+//     fmt.Println("Message sent: ", message) // Log sent message
+
+//     // Redirect back to chat page
+//     http.Redirect(w, r, "/globalchat", http.StatusSeeOther)
+// }
+
+func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
+    t, err := template.ParseFiles(tmpl)
+    if err != nil {
+        http.Error(w, "Failed to load template", http.StatusInternalServerError)
+        return
+    }
+
+    err = t.Execute(w, data)
+    if err != nil {
+        http.Error(w, "Failed to render template", http.StatusInternalServerError)
+        return
+    }
 }
