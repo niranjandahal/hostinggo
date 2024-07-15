@@ -54,17 +54,40 @@ func retryConnect(attempts int, sleep time.Duration, f func() error) error {
 }
 
 func main() {
-    // Load environment variables from .env file only in localhost 
-    
-    // err := godotenv.Load()
-    // if err != nil {
-    //     log.Fatalf("Error loading .env file")
-    // }
 
-    //comment this code in deployement
+   // only for running on localhost
+   //comment this block for deployement
 
+//    err := godotenv.Load()
+//    if err != nil {
+//        log.Fatalf("Error loading .env file")
+//    }
+//    dbServer := os.Getenv("AZURE_DB_SERVER")
+//    dbUser := os.Getenv("AZURE_DB_USER")
+//    dbPassword := os.Getenv("AZURE_DB_PASSWORD")
+//    dbPort := os.Getenv("AZURE_DB_PORT")
+//    dbName := os.Getenv("AZURE_DB_NAME")
+//    if dbServer == "" || dbUser == "" || dbPassword == "" || dbPort == "" || dbName == "" {
+//        log.Fatalf("Database environment variables are not set")
+//    }
+//    connectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
+//        dbServer, dbUser, dbPassword, dbPort, dbName)
 
-    
+//    err = retryConnect(3, 5*time.Second, func() error {
+//        return globalchat.InitDB(connectionString)
+//    })
+//    if err != nil {
+//        log.Fatalf("Failed to connect to database: %v", err)
+//    }
+
+    //
+    //
+    //
+    //uncomment this block for deployement 
+    //
+    //
+    //
+
     dbServer := os.Getenv("AZURE_DB_SERVER")
     dbUser := os.Getenv("AZURE_DB_USER")
     dbPassword := os.Getenv("AZURE_DB_PASSWORD")
@@ -85,8 +108,13 @@ func main() {
         log.Fatalf("Failed to connect to database: %v", err)
     }
 
-  
-
+    //
+    //
+    //
+    //handlers for all projects 
+    //
+    //
+    //
     http.HandleFunc("/", mainHandler)
 
     // Image Resizer 
@@ -104,9 +132,9 @@ func main() {
     http.HandleFunc("/urlshortener/redirect/", urlshortener.RedirectHandler)
 
     // Global Chat 
-    http.HandleFunc("/globalchat", globalchat.GlobalChatHandler) // Route for fetching messages
-    http.HandleFunc("/globalchat/send", globalchat.GlobalChatSendHandler) // Route for sending messages
-    http.HandleFunc("/globalchat/getmessages", globalchat.GlobalChatGetMessagesHandler) // Route for getting 
+    http.HandleFunc("/globalchat", globalchat.GlobalChatHandler) 
+    http.HandleFunc("/globalchat/send", globalchat.GlobalChatSendHandler) 
+    http.HandleFunc("/globalchat/getmessages", globalchat.GlobalChatGetMessagesHandler)
 
     fmt.Println("Server started at :8080")
     log.Fatal(http.ListenAndServe(":8080", nil))

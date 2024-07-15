@@ -4,55 +4,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Chat</title>
+    <title>ChatSphere</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            width: 90%;
+            max-width: 600px;
+            height: 90%;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        #header {
+            padding: 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        #messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .message {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .message img {
+            border-radius: 50%;
+            margin-right: 10px;
+            width: 40px;
+            height: 40px;
+        }
+
+        .message-content {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+
+        #messageForm {
+            display: flex;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        #messageInput {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        #sendButton {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #sendButton:hover {
+            background-color: #45a049;
+        }
+
+        @media (max-width: 600px) {
+            #chat-container {
+                width: 100%;
+                height: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div id="messages">
-        <!-- Messages should be displayed here -->
+    <div id="chat-container">
+        <div id="header">ChatSphere</div>
+        <div id="messages">
+            <!-- Messages will be displayed here -->
+        </div>
+        <form id="messageForm" action="/globalchat/send" method="post">
+            <input type="text" id="messageInput" name="message" placeholder="Enter your message" required>
+            <button type="submit" id="sendButton">Send</button>
+        </form>
     </div>
-    <form id="messageForm" action="/globalchat/send" method="post">
-        <input type="text" id="messageInput" name="message" placeholder="Enter your message" required>
-        <button type="submit">Send</button>
-    </form>
 
     <!-- Include jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Function to fetch and display messages
             function fetchMessages() {
                 $.getJSON("/globalchat/getmessages", function (data) {
-                    // Clear previous messages
                     $("#messages").empty();
 
-                    // Append new messages
                     $.each(data.messages, function (index, message) {
-                        $("#messages").append(`<div>${message.Timestamp}: ${message.Content}</div>`);
+                        $("#messages").append(`
+                            <div class="message">
+                                <img src="https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?size=338&ext=jpg&ga=GA1.1.2008272138.1720915200&semt=ais_user" alt="User">
+                                <div class="message-content">${message.Content}</div>
+                            </div>
+                        `);
                     });
                 }).fail(function (jqXHR, textStatus, errorThrown) {
                     console.log(`Failed to fetch messages: ${textStatus}, ${errorThrown}`);
                 });
             }
 
-            // Fetch messages initially
             fetchMessages();
-
-            // Submit message form
             $("#messageForm").submit(function (event) {
                 event.preventDefault();
                 var formData = $(this).serialize();
                 $.post("/globalchat/send", formData, function () {
-                    // Clear input after sending message
                     $("#messageInput").val("");
-                    // Fetch and display updated messages
                     fetchMessages();
                 }).fail(function (jqXHR, textStatus, errorThrown) {
                     console.log(`Failed to send message: ${textStatus}, ${errorThrown}`);
                 });
             });
-        });
 
+            $('#messages').on('DOMNodeInserted', function () {
+                $(this).scrollTop(this.scrollHeight);
+            });
+        });
     </script>
 </body>
 

@@ -20,7 +20,6 @@ func InitDB(dataSourceName string) error {
         return fmt.Errorf("failed to connect to database: %v", err)
     }
 
-    // Check the connection
     err = db.Ping()
     if err != nil {
         return fmt.Errorf("failed to ping database: %v", err)
@@ -60,7 +59,7 @@ func fetchMessages() ([]Message, error) {
         return nil, err
     }
 
-    log.Printf("Fetched messages: %v", messages) // Log fetched messages
+    log.Printf("Fetched messages: %v", messages) 
 
     return messages, nil
 }
@@ -72,7 +71,6 @@ func GlobalChatHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Prepare data to pass into the template
     data := struct {
         Messages []Message
     }{
@@ -89,7 +87,6 @@ func GlobalChatGetMessagesHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Prepare JSON response
     jsonResponse, err := json.Marshal(struct {
         Messages []Message `json:"messages"`
     }{Messages: messages})
@@ -98,7 +95,6 @@ func GlobalChatGetMessagesHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Set content type and write JSON response
     w.Header().Set("Content-Type", "application/json")
     w.Write(jsonResponse)
 }
@@ -124,10 +120,8 @@ func GlobalChatSendHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Log the message before inserting
     fmt.Printf("Inserting message: %s\n", message)
 
-    // Insert message into database
     result, err := db.Exec("INSERT INTO messages (content) VALUES (@p1)", message)
     // result, err := db.Exec("INSERT INTO messages (content) VALUES (?)", message)
     if err != nil {
@@ -136,7 +130,6 @@ func GlobalChatSendHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Log the number of rows affected
     rowsAffected, err := result.RowsAffected()
     if err != nil {
         log.Printf("Failed to get affected rows: %v", err)
@@ -146,45 +139,8 @@ func GlobalChatSendHandler(w http.ResponseWriter, r *http.Request) {
 
     fmt.Printf("Message sent: %s, Rows affected: %d\n", message, rowsAffected)
 
-    // Redirect back to chat page
     http.Redirect(w, r, "/globalchat", http.StatusSeeOther)
 }
-
-
-// func GlobalChatSendHandler(w http.ResponseWriter, r *http.Request) {
-// less loggin error thrown and debugging
-
-//     print("GlobalChatSendHandler function called " );
-
-//     if r.Method != http.MethodPost {
-//         http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-//         return
-//     }
-
-//     err := r.ParseForm()
-//     if err != nil {
-//         http.Error(w, "Failed to parse form", http.StatusInternalServerError)
-//         return
-//     }
-
-//     message := r.Form.Get("message")
-//     if message == "" {
-//         http.Error(w, "Message cannot be empty", http.StatusBadRequest)
-//         return
-//     }
-
-//     // Insert message into database
-//     _, err = db.Exec("INSERT INTO messages (content) VALUES (?)", message)
-//     if err != nil {
-//         http.Error(w, "Failed to insert message into database", http.StatusInternalServerError)
-//         return
-//     }
-
-//     fmt.Println("Message sent: ", message) // Log sent message
-
-//     // Redirect back to chat page
-//     http.Redirect(w, r, "/globalchat", http.StatusSeeOther)
-// }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
     t, err := template.ParseFiles(tmpl)
