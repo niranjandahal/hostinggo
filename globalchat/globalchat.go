@@ -152,7 +152,7 @@ func GlobalChatSendHandler(w http.ResponseWriter, r *http.Request) {
 
 
 // func GlobalChatSendHandler(w http.ResponseWriter, r *http.Request) {
-
+// less loggin error thrown and debugging
 
 //     print("GlobalChatSendHandler function called " );
 

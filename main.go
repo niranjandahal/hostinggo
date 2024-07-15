@@ -10,8 +10,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 type Project struct {
@@ -56,13 +54,17 @@ func retryConnect(attempts int, sleep time.Duration, f func() error) error {
 }
 
 func main() {
-    // Load environment variables from .env file
-    err := godotenv.Load()
-    if err != nil {
-        log.Fatalf("Error loading .env file")
-    }
+    // Load environment variables from .env file only in localhost 
+    
+    // err := godotenv.Load()
+    // if err != nil {
+    //     log.Fatalf("Error loading .env file")
+    // }
 
-    // Load environment variables
+    //comment this code in deployement
+
+
+    
     dbServer := os.Getenv("AZURE_DB_SERVER")
     dbUser := os.Getenv("AZURE_DB_USER")
     dbPassword := os.Getenv("AZURE_DB_PASSWORD")
@@ -73,48 +75,39 @@ func main() {
         log.Fatalf("Database environment variables are not set")
     }
 
-
     connectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
         dbServer, dbUser, dbPassword, dbPort, dbName)
 
-    err = retryConnect(3, 5*time.Second, func() error {
+    err := retryConnect(3, 5*time.Second, func() error {
         return globalchat.InitDB(connectionString)
     })
     if err != nil {
         log.Fatalf("Failed to connect to database: %v", err)
     }
 
-    // // Initialize database connection
-    // connectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
-    //     dbServer, dbUser, dbPassword, dbPort, dbName)
-    // globalchat.InitDB(connectionString)
+  
 
-
-    
-
-    // Handle routes
     http.HandleFunc("/", mainHandler)
 
-    // Image Resizer routes
+    // Image Resizer 
     http.HandleFunc("/imageresizer", func(w http.ResponseWriter, r *http.Request) {
         http.ServeFile(w, r, "imageresizer/static/imageresizer.html")
     })
     http.HandleFunc("/imageresizer/upload", imageresizer.UploadHandler)
     http.HandleFunc("/imageresizer/download/", imageresizer.DownloadHandler)
 
-    // URL Shortener routes
+    // URL Shortener 
     http.HandleFunc("/urlshortener", func(w http.ResponseWriter, r *http.Request) {
         http.ServeFile(w, r, "urlshortener/static/urlshortener.html")
     })
     http.HandleFunc("/urlshortener/shorten", urlshortener.ShortenHandler)
     http.HandleFunc("/urlshortener/redirect/", urlshortener.RedirectHandler)
 
-    // Global Chat routes
+    // Global Chat 
     http.HandleFunc("/globalchat", globalchat.GlobalChatHandler) // Route for fetching messages
     http.HandleFunc("/globalchat/send", globalchat.GlobalChatSendHandler) // Route for sending messages
-    http.HandleFunc("/globalchat/getmessages", globalchat.GlobalChatGetMessagesHandler) // Route for getting messages
+    http.HandleFunc("/globalchat/getmessages", globalchat.GlobalChatGetMessagesHandler) // Route for getting 
 
-    // Start server
     fmt.Println("Server started at :8080")
     log.Fatal(http.ListenAndServe(":8080", nil))
 }
