@@ -13,14 +13,21 @@ import (
 
 var db *sql.DB
 
-func InitDB(dataSourceName string) {
+func InitDB(dataSourceName string) error {
     var err error
     db, err = sql.Open("sqlserver", dataSourceName)
     if err != nil {
-        log.Fatalf("Failed to connect to database: %v", err)
+        return fmt.Errorf("failed to connect to database: %v", err)
+    }
+
+    // Check the connection
+    err = db.Ping()
+    if err != nil {
+        return fmt.Errorf("failed to ping database: %v", err)
     }
 
     fmt.Print("Connected to database\n")
+    return nil
 }
 
 type Message struct {

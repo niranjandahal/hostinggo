@@ -9,6 +9,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
+
 	"github.com/joho/godotenv"
 )
 
@@ -38,6 +40,21 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
     tmpl.Execute(w, projects)
 }
 
+func retryConnect(attempts int, sleep time.Duration, f func() error) error {
+    for i := 0; ; i++ {
+        err := f()
+        if err == nil {
+            return nil
+        }
+
+        if i >= (attempts - 1) {
+            return err
+        }
+
+        time.Sleep(sleep)
+    }
+}
+
 func main() {
     // Load environment variables from .env file
     err := godotenv.Load()
@@ -56,10 +73,24 @@ func main() {
         log.Fatalf("Database environment variables are not set")
     }
 
-    // Initialize database connection
+
     connectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
         dbServer, dbUser, dbPassword, dbPort, dbName)
-    globalchat.InitDB(connectionString)
+
+    err = retryConnect(3, 5*time.Second, func() error {
+        return globalchat.InitDB(connectionString)
+    })
+    if err != nil {
+        log.Fatalf("Failed to connect to database: %v", err)
+    }
+
+    // // Initialize database connection
+    // connectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
+    //     dbServer, dbUser, dbPassword, dbPort, dbName)
+    // globalchat.InitDB(connectionString)
+
+
+    
 
     // Handle routes
     http.HandleFunc("/", mainHandler)
