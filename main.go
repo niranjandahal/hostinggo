@@ -122,7 +122,7 @@ func main() {
         http.ServeFile(w, r, "imageresizer/static/imageresizer.html")
     })
     http.HandleFunc("/imageresizer/upload", imageresizer.UploadHandler)
-    http.HandleFunc("/imageresizer/download/", imageresizer.DownloadHandler)
+    // http.HandleFunc("/imageresizer/download/", imageresizer.DownloadHandler)
 
     // URL Shortener 
     http.HandleFunc("/urlshortener", func(w http.ResponseWriter, r *http.Request) {
