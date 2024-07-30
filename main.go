@@ -3,7 +3,8 @@ package main
 import (
 	"allprojects/globalchat"
 	"allprojects/imageresizer"
-	"allprojects/urlshortener"
+
+	// "allprojects/urlshortener"
 	"fmt"
 	"html/template"
 	"log"
@@ -72,7 +73,7 @@ func main() {
     //dbNameglobalchat for globalchatproject
     dbNameglobalchat := os.Getenv("AZURE_DB_NAME_Global_Chat")
     //dbname for urlshortener project
-    dbNameurl:=os.Getenv("AZURE_DB_NAME_URL")
+    // dbNameurl:=os.Getenv("AZURE_DB_NAME_URL")
     //dbconnection for globalchat project
     if dbServer == "" || dbUser == "" || dbPassword == "" || dbPort == "" || dbNameglobalchat == "" {
         log.Fatalf("Database environment variables are not set for globalchat project")
@@ -86,17 +87,17 @@ func main() {
         log.Fatalf("Failed to connect to database globalchat project: %v", errglobalchat)
     }
     //dbconnection for urlshortener project
-    if dbServer == "" || dbUser == "" || dbPassword == "" || dbPort == "" || dbNameurl == "" {
-        log.Fatalf("Database environment variables are not set for urlshortener project")
-    }
-    connectionStringurl := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
-        dbServer, dbUser, dbPassword, dbPort, dbNameurl)
-    errurl:= retryConnect(3, 5*time.Second, func() error {
-        return urlshortener.InitDB(connectionStringurl)
-    })
-    if errurl != nil { 
-        log.Fatalf("Failed to connect to database urlshorterner project: %v", errurl)
-    }
+    // if dbServer == "" || dbUser == "" || dbPassword == "" || dbPort == "" || dbNameurl == "" {
+    //     log.Fatalf("Database environment variables are not set for urlshortener project")
+    // }
+    // connectionStringurl := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s;",
+    //     dbServer, dbUser, dbPassword, dbPort, dbNameurl)
+    // errurl:= retryConnect(3, 5*time.Second, func() error {
+    //     return urlshortener.InitDB(connectionStringurl)
+    // })
+    // if errurl != nil { 
+    //     log.Fatalf("Failed to connect to database urlshorterner project: %v", errurl)
+    // }
     //
     //
     //
