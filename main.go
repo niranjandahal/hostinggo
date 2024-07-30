@@ -11,8 +11,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 
@@ -60,10 +58,10 @@ func retryConnect(attempts int, sleep time.Duration, f func() error) error {
 func main() {
     //LOAD  .env file
     //only FOR localhost
-    enverr := godotenv.Load()
-   if enverr != nil {
-       log.Fatalf("Error loading .env file")
-   }
+//     enverr := godotenv.Load()
+//    if enverr != nil {
+//        log.Fatalf("Error loading .env file")
+//    }
     //
     //
     dbServer := os.Getenv("AZURE_DB_SERVER")
