@@ -1,6 +1,11 @@
+
+
 package imageresizer
 
+
 import (
+
+
 	"bytes"
 	"encoding/base64"
 	"html/template"
@@ -10,7 +15,10 @@ import (
 	"net/http"
 	"strconv"
 
+
 	"github.com/nfnt/resize"
+
+	
 )
 
 type ImageData struct {

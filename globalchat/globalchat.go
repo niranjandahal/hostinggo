@@ -17,15 +17,15 @@ func InitDB(dataSourceName string) error {
     var err error
     db, err = sql.Open("sqlserver", dataSourceName)
     if err != nil {
-        return fmt.Errorf("failed to connect to database: %v", err)
+        return fmt.Errorf("failed to connect to database globalchat: %v", err)
     }
 
     err = db.Ping()
     if err != nil {
-        return fmt.Errorf("failed to ping database: %v", err)
+        return fmt.Errorf("failed to ping database globalchat: %v", err)
     }
 
-    fmt.Print("Connected to database\n")
+    fmt.Print("Connected to database globalchat\n")
     return nil
 }
 
